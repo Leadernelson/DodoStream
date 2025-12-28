@@ -172,7 +172,7 @@ PRs and issues are welcome.
 This project is inspired by other community streaming clients and media projects, including:
 
 - [Stremio](https://www.stremio.com/)
-- [NuvioStreaming](https://github.com/DodoraApp/DodoStream)
+- [NuvioStreaming](https://github.com/tapframe/NuvioStreaming)
 - [Cinephage](https://github.com/MoldyTaint/Cinephage)
 
 ## Legal / Disclaimer
