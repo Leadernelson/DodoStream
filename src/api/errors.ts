@@ -13,8 +13,8 @@ export class StremioApiError extends Error {
         this.name = 'StremioApiError';
 
         // Maintains proper stack trace for where error was thrown (only in V8 engines)
-        if (Error.captureStackTrace) {
-            Error.captureStackTrace(this, StremioApiError);
+        if (typeof (Error as any).captureStackTrace === 'function') {
+            (Error as any).captureStackTrace(this, StremioApiError);
         }
     }
 
