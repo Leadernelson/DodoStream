@@ -198,11 +198,45 @@ jobs:
           path: ./${{ matrix.output }}
           retention-days: 7
 
+  expo_update:
+    needs: [test]
+    if: |
+      github.event_name == 'workflow_dispatch' &&
+      github.ref != 'refs/heads/main' &&
+      github.event.inputs.buildType == 'dev'
+    runs-on: ubuntu-latest
+    name: Expo Update
+
+    steps:
+      - name: 🏗 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🏗 Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: 🏗 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: 📦 Install dependencies
+        run: |
+          pnpm install
+          pnpm i -g eas-cli@latest
+
+      - name: 🚀 Publish to Expo
+        run: eas update --auto
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
   publish:
     needs: [test, build]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    name: Publish (Expo Update)
+    name: Publish
 
     steps:
       - name: 🏗 Checkout repository
@@ -248,8 +282,3 @@ jobs:
           allowUpdates: true
           replacesArtifacts: true
           generateReleaseNotes: true
-
-      - name: 🚀 Publish to Expo
-        run: eas update --auto
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
