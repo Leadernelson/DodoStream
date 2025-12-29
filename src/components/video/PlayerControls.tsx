@@ -1,5 +1,5 @@
 import React, { FC, useState, useEffect, useCallback, useMemo } from 'react';
-import { StyleSheet, Pressable, StatusBar } from 'react-native';
+import { StyleSheet, Pressable, StatusBar, View } from 'react-native';
 import { Box, Text, Theme } from '@/theme/theme';
 import Slider from '@react-native-community/slider';
 import { useTheme } from '@shopify/restyle';
@@ -258,21 +258,25 @@ export const PlayerControls: FC<PlayerControlsProps> = ({
       <StatusBar hidden />
       <Box flex={1} justifyContent="space-between">
         {/* Top Bar */}
-        <Box
-          flexDirection="row"
-          alignItems="center"
-          paddingHorizontal="l"
-          paddingVertical="m"
-          gap="m">
-          <ControlButton onPress={handleBack} icon="arrow-back" iconComponent={Ionicons} />
-          <Text
-            variant="cardTitle"
-            color="mainForeground"
-            numberOfLines={1}
-            style={{ flex: 1, fontFamily: 'Outfit_700Bold' }}>
-            {title || 'Play'}
-          </Text>
-        </Box>
+        <View
+          onStartShouldSetResponder={() => true}
+          onTouchEnd={(e) => e.stopPropagation()}>
+          <Box
+            flexDirection="row"
+            alignItems="center"
+            paddingHorizontal="l"
+            paddingVertical="m"
+            gap="m">
+            <ControlButton onPress={handleBack} icon="arrow-back" iconComponent={Ionicons} />
+            <Text
+              variant="cardTitle"
+              color="mainForeground"
+              numberOfLines={1}
+              style={{ flex: 1, fontFamily: 'Outfit_700Bold' }}>
+              {title || 'Play'}
+            </Text>
+          </Box>
+        </View>
         {/* Loading Indicator */}
         {showLoadingIndicator && (
           <Box width="100%" alignItems="center" justifyContent="center">
@@ -281,117 +285,121 @@ export const PlayerControls: FC<PlayerControlsProps> = ({
         )}
 
         {/* Bottom Controls */}
-        <Box
-          paddingHorizontal="m"
-          paddingVertical="m"
-          gap="s"
-          style={{
-            backgroundColor: 'rgba(0, 0, 0, 0.4)',
-          }}>
-          <Box>
-            {/* Time Display */}
-            <Box
-              flexDirection="row"
-              alignItems="center"
-              justifyContent="space-between"
-              paddingHorizontal="s">
-              <Text variant="body" color="mainForeground" fontSize={14}>
-                {isSeeking ? formatTime(seekTime) : formatTime(currentTime)}
-              </Text>
-              <Text variant="body" color="mainForeground" fontSize={14}>
-                {formatTime(duration)}
-              </Text>
+        <View
+          onStartShouldSetResponder={() => true}
+          onTouchEnd={(e) => e.stopPropagation()}>
+          <Box
+            paddingHorizontal="m"
+            paddingVertical="m"
+            gap="s"
+            style={{
+              backgroundColor: 'rgba(0, 0, 0, 0.4)',
+            }}>
+            <Box>
+              {/* Time Display */}
+              <Box
+                flexDirection="row"
+                alignItems="center"
+                justifyContent="space-between"
+                paddingHorizontal="s">
+                <Text variant="body" color="mainForeground" fontSize={14}>
+                  {isSeeking ? formatTime(seekTime) : formatTime(currentTime)}
+                </Text>
+                <Text variant="body" color="mainForeground" fontSize={14}>
+                  {formatTime(duration)}
+                </Text>
+              </Box>
+
+              {/* Seek Bar - Full Width */}
+              <Slider
+                style={{ width: '100%', height: 40 }}
+                minimumValue={0}
+                maximumValue={duration || 0}
+                value={currentTime}
+                onSlidingStart={handleSeekStart}
+                onValueChange={handleSeekChange}
+                onSlidingComplete={handleSeekEnd}
+                minimumTrackTintColor={theme.colors.primaryBackground}
+                maximumTrackTintColor={theme.colors.secondaryBackground}
+                thumbTintColor={theme.colors.primaryBackground}
+              />
             </Box>
 
-            {/* Seek Bar - Full Width */}
-            <Slider
-              style={{ width: '100%', height: 40 }}
-              minimumValue={0}
-              maximumValue={duration || 0}
-              value={currentTime}
-              onSlidingStart={handleSeekStart}
-              onValueChange={handleSeekChange}
-              onSlidingComplete={handleSeekEnd}
-              minimumTrackTintColor={theme.colors.primaryBackground}
-              maximumTrackTintColor={theme.colors.secondaryBackground}
-              thumbTintColor={theme.colors.primaryBackground}
-            />
-          </Box>
-
-          {/* Control Buttons */}
-          <Box flexDirection="row" alignItems="center" justifyContent="space-between">
-            {/* Left side: Skip Episode */}
-            <Box>
-              {showSkipEpisode && (
+            {/* Control Buttons */}
+            <Box flexDirection="row" alignItems="center" justifyContent="space-between">
+              {/* Left side: Skip Episode */}
+              <Box>
+                {showSkipEpisode && (
+                  <ControlButton
+                    onPress={handleSkipEpisode}
+                    icon="skip-next"
+                    iconComponent={MaterialCommunityIcons}
+                    disabled={showLoadingIndicator || !onSkipEpisode}
+                    label={skipEpisodeLabel}
+                    onFocusChange={handleButtonFocusChange}
+                  />
+                )}
+              </Box>
+              {/* Center: Playback controls */}
+              <Box flexDirection="row" alignItems="center" gap="s">
                 <ControlButton
-                  onPress={handleSkipEpisode}
-                  icon="skip-next"
+                  onPress={handleSkipBackward}
+                  icon="rotate-left"
                   iconComponent={MaterialCommunityIcons}
-                  disabled={showLoadingIndicator || !onSkipEpisode}
-                  label={skipEpisodeLabel}
+                  disabled={showLoadingIndicator}
+                  label="-15s"
                   onFocusChange={handleButtonFocusChange}
                 />
-              )}
-            </Box>
-            {/* Center: Playback controls */}
-            <Box flexDirection="row" alignItems="center" gap="s">
-              <ControlButton
-                onPress={handleSkipBackward}
-                icon="rotate-left"
-                iconComponent={MaterialCommunityIcons}
-                disabled={showLoadingIndicator}
-                label="-15s"
-                onFocusChange={handleButtonFocusChange}
-              />
-              <ControlButton
-                onPress={handlePlayPause}
-                icon={paused ? 'play' : 'pause'}
-                iconComponent={Ionicons}
-                disabled={showLoadingIndicator}
-                hasTVPreferredFocus
-                onFocusChange={handleButtonFocusChange}
-                variant="primary"
-                label={paused ? 'Play' : 'Pause'}
-              />
-              <ControlButton
-                onPress={handleSkipForward}
-                icon="rotate-right"
-                iconComponent={MaterialCommunityIcons}
-                disabled={showLoadingIndicator}
-                label="+15s"
-                onFocusChange={handleButtonFocusChange}
-              />
-            </Box>
+                <ControlButton
+                  onPress={handlePlayPause}
+                  icon={paused ? 'play' : 'pause'}
+                  iconComponent={Ionicons}
+                  disabled={showLoadingIndicator}
+                  hasTVPreferredFocus
+                  onFocusChange={handleButtonFocusChange}
+                  variant="primary"
+                  label={paused ? 'Play' : 'Pause'}
+                />
+                <ControlButton
+                  onPress={handleSkipForward}
+                  icon="rotate-right"
+                  iconComponent={MaterialCommunityIcons}
+                  disabled={showLoadingIndicator}
+                  label="+15s"
+                  onFocusChange={handleButtonFocusChange}
+                />
+              </Box>
 
-            {/* Right side: Audio and subtitle controls */}
-            <Box flexDirection="row" alignItems="center" gap="s">
-              <ControlButton
-                onPress={() => {
-                  registerInteraction();
-                  setShowAudioTracks(!showAudioTracks);
-                }}
-                icon="globe"
-                iconComponent={Ionicons}
-                disabled={showLoadingIndicator}
-                onFocusChange={handleButtonFocusChange}
-                label="Audio"
-              />
-              {textTracks.length > 0 && (
+              {/* Right side: Audio and subtitle controls */}
+              <Box flexDirection="row" alignItems="center" gap="s">
                 <ControlButton
                   onPress={() => {
                     registerInteraction();
-                    setShowTextTracks(!showTextTracks);
+                    setShowAudioTracks(!showAudioTracks);
                   }}
-                  icon="subtitles"
-                  iconComponent={MaterialCommunityIcons}
+                  icon="globe"
+                  iconComponent={Ionicons}
                   disabled={showLoadingIndicator}
                   onFocusChange={handleButtonFocusChange}
-                  label="Subtitles"
+                  label="Audio"
                 />
-              )}
+                {textTracks.length > 0 && (
+                  <ControlButton
+                    onPress={() => {
+                      registerInteraction();
+                      setShowTextTracks(!showTextTracks);
+                    }}
+                    icon="subtitles"
+                    iconComponent={MaterialCommunityIcons}
+                    disabled={showLoadingIndicator}
+                    onFocusChange={handleButtonFocusChange}
+                    label="Subtitles"
+                  />
+                )}
+              </Box>
             </Box>
           </Box>
-        </Box>
+        </View>
 
         {/* Audio Track Selector Modal */}
         <PickerModal
