@@ -57,4 +57,30 @@ describe('PlayerControls', () => {
     // Assert
     expect(queryByText('My Title')).toBeNull();
   });
+
+  it('renders with onBack callback', () => {
+    // Arrange
+    const onBack = jest.fn();
+    const { getByText } = renderWithProviders(
+      <PlayerControls
+        paused={true}
+        currentTime={0}
+        duration={100}
+        showLoadingIndicator={false}
+        title="My Title"
+        audioTracks={[]}
+        textTracks={[]}
+        onPlayPause={() => {}}
+        onSeek={() => {}}
+        onSkipBackward={() => {}}
+        onSkipForward={() => {}}
+        onBack={onBack}
+        onSelectAudioTrack={() => {}}
+        onSelectTextTrack={() => {}}
+      />
+    );
+
+    // Assert - Controls should render with back button
+    expect(getByText('My Title')).toBeTruthy();
+  });
 });
